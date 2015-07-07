@@ -1,24 +1,12 @@
 <?php
 /**
- * Plugin Name: 10up Image Generator
+ * Plugin Name: Image Generator
  * Plugin URI: https://github.com/10up/Image-Generator
  * Description: Generates images on the fly.
  * Author: 10up Inc
  * Author URI: https://10up.com/
  * Version: 1.0.0
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- */
-
-/**
- * Nginx config:
- *
- * location ~ \.(gif|jpg|png) {
- *     try_files $uri @img_proxy;
- * }
- *
- * location @img_proxy {
- *     rewrite ^(.*)$ /wp-admin/admin-ajax.php?action=ten_generate_image;
- * }
  */
 
 /**
