@@ -8,6 +8,6 @@ location ~ \.(gif|jpg|png) {
 }
 
 location @img_proxy {
-	rewrite ^(.*)$ /wp-admin/admin-ajax.php?action=ten_generate_image;
+	rewrite ^(.*)$ /wp-admin/admin-ajax.php?action=generate_image;
 }
 ```
