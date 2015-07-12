@@ -39,7 +39,7 @@ function _tenup_ig_get_size_dinmensions( $size ) {
 		return array(
 			get_option( $size . '_size_w' ),
 			get_option( $size . '_size_h' ),
-			boolval( get_option( $size . '_crop' ) ),
+			get_option( $size . '_crop' ),
 		);
 	}
 
@@ -152,7 +152,7 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 	if ( ! isset( $dimensions[2] ) ) {
 		$dimensions[2] = false;
 	}
-	
+
 	list( $width, $height, $crop ) = $dimensions;
 
 	if ( ! empty( $crop ) ) {
