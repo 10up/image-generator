@@ -149,6 +149,10 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 		return $downsize;
 	}
 
+	if ( ! isset( $dimensions[2] ) ) {
+		$dimensions[2] = false;
+	}
+	
 	list( $width, $height, $crop ) = $dimensions;
 
 	if ( ! empty( $crop ) ) {
