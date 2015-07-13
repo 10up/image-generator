@@ -5,6 +5,24 @@ require_once codecept_root_dir() . 'tests/_support/BaseCest.php';
 class DownsizeCest extends Tenup_IG_BaseCest {
 
 	/**
+	 * Checks image with certain size and replace pattern.
+	 *
+	 * @access protected
+	 * @param FunctionalTester $I The tester instance.
+	 * @param string|array $size The size name or direct size dimensions.
+	 * @param string $replace The replace pattern to use for expected URL.
+	 * @param string $going Description what we are going to do.
+	 */
+	protected function _assertImage( $I, $size, $replace, $going ) {
+		$image = wp_get_attachment_image_src( $this->_attachment->ID, $size );
+		$expected_url = preg_replace( '~(\.\w+)$~i', $replace, $this->_url );
+
+		$I->amGoingTo( $going );
+		$I->assertNotEmpty( $image );
+		$I->assertEquals( $expected_url, current( $image ) );
+	}
+
+	/**
 	 * Checks if downsize returns url to a full size image if not existing image size is passed.
 	 *
 	 * @access public
@@ -32,33 +50,15 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 
 		// image size without crop
 		add_image_size( $size, $width, $height, false );
-
-		$image = wp_get_attachment_image_src( $this->_attachment->ID, $size );
-		$expected_url = preg_replace( '~(\.\w+)$~i', "-{$width}x{$height}\$1", $this->_url );
-
-		$I->amGoingTo( 'check existing image size without crop' );
-		$I->assertNotEmpty( $image );
-		$I->assertEquals( $expected_url, current( $image ) );
+		$this->_assertImage( $I, $size, "-{$width}x{$height}\$1", 'check existing image size without crop' );
 
 		// image size with crop
 		add_image_size( $size, $width, $height, true );
-
-		$image = wp_get_attachment_image_src( $this->_attachment->ID, $size );
-		$expected_url = preg_replace( '~(\.\w+)$~i', "-{$width}x{$height}c\$1", $this->_url );
-
-		$I->amGoingTo( 'check existing image size with crop' );
-		$I->assertNotEmpty( $image );
-		$I->assertEquals( $expected_url, current( $image ) );
+		$this->_assertImage( $I, $size, "-{$width}x{$height}c\$1", 'check existing image size with crop' );
 
 		// image size with different crop center
 		add_image_size( $size, $width, $height, array( $horizontal, $vertical ) );
-
-		$image = wp_get_attachment_image_src( $this->_attachment->ID, $size );
-		$expected_url = preg_replace( '~(\.\w+)$~i', "-{$width}x{$height}:{$horizontal}x{$vertical}\$1", $this->_url );
-
-		$I->amGoingTo( 'check existing image size wit different crop center' );
-		$I->assertNotEmpty( $image );
-		$I->assertEquals( $expected_url, current( $image ) );
+		$this->_assertImage( $I, $size, "-{$width}x{$height}:{$horizontal}x{$vertical}\$1", 'check existing image size wit different crop center' );
 	}
 
 	/**
@@ -71,20 +71,9 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 		$width = $height = rand( 200, 300 );
 
 		// without crop
-		$image = wp_get_attachment_image_src( $this->_attachment->ID, array( $width, $height ) );
-		$expected_url = preg_replace( '~(\.\w+)$~i', "-{$width}x{$height}\$1", $this->_url );
-
-		$I->amGoingTo( 'check direct image size without crop' );
-		$I->assertNotEmpty( $image );
-		$I->assertEquals( $expected_url, current( $image ) );
-
+		$this->_assertImage( $I, array( $width, $height ), "-{$width}x{$height}\$1", 'check direct image size without crop' );
 		// with crop
-		$image = wp_get_attachment_image_src( $this->_attachment->ID, array( $width, $height, true ) );
-		$expected_url = preg_replace( '~(\.\w+)$~i', "-{$width}x{$height}c\$1", $this->_url );
-
-		$I->amGoingTo( 'check direct image size with crop' );
-		$I->assertNotEmpty( $image );
-		$I->assertEquals( $expected_url, current( $image ) );
+		$this->_assertImage( $I, array( $width, $height, true ), "-{$width}x{$height}c\$1", 'check direct image size with crop' );
 	}
 
 }
