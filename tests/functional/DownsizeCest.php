@@ -76,4 +76,33 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 		$this->_assertImage( $I, array( $width, $height, true ), "-{$width}x{$height}c\$1", 'check direct image size with crop' );
 	}
 
+	/**
+	 * Checks incomplete sizes.
+	 *
+	 * @access public
+	 * @param FunctionalTester $I The tester instance.
+	 */
+	public function testIncompleteSizes( FunctionalTester $I ) {
+		$size = '_ten_gi_size_' . rand( 0, 100 );
+		$dimension = rand( 200, 300 );
+		$width = ceil( $dimension * 900 / 700 );
+		$height = ceil( $dimension * 700 / 900 );
+
+		// image size without height
+		add_image_size( $size, $dimension, 0, true );
+		$this->_assertImage( $I, $size, "-{$dimension}x{$height}c\$1", 'check incomplete image size without height' );
+
+		// image size without width
+		add_image_size( $size, 0, $dimension, true );
+		$this->_assertImage( $I, $size, "-{$width}x{$dimension}c\$1", 'check incomplete image size without width' );
+
+		// image size without height and crop
+		add_image_size( $size, $dimension );
+		$this->_assertImage( $I, $size, "-{$dimension}x{$height}\$1", 'check incomplete image size without height and crop' );
+
+		// image size without width and crop
+		add_image_size( $size, 0, $dimension );
+		$this->_assertImage( $I, $size, "-{$width}x{$dimension}\$1", 'check incomplete image size without width and crop' );
+	}
+
 }
