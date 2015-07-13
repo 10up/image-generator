@@ -35,6 +35,14 @@ class Tenup_IG_BaseCest {
 	protected $_url;
 
 	/**
+	 * The image aspect ratio.
+	 *
+	 * @access protected
+	 * @var float
+	 */
+	protected $_aspect = 1;
+
+	/**
 	 * Creates a new attachment for a test.
 	 *
 	 * @access public
@@ -59,6 +67,11 @@ class Tenup_IG_BaseCest {
 		copy( $baseimage, $this->_filename );
 
 		$this->_attachment = $this->_factory->attachment->createAndGet( array( 'file' => $this->_filename ) );
+
+		$image = wp_get_attachment_image_src( $this->_attachment->ID, 'full-size-image-' . rand( 0, 100 ) );
+		if ( ! empty( $image[1] ) && ! empty( $image[2] ) ) {
+			$this->_aspect = $image[1] / $image[2];
+		}
 	}
 
 	/**

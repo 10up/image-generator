@@ -44,7 +44,8 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 */
 	public function testCustomImageSizes( FunctionalTester $I ) {
 		$size = '_ten_gi_size_' . rand( 0, 100 );
-		$width = $height = rand( 200, 300 );
+		$width = rand( 200, 300 );
+		$height = ceil( $width / $this->_aspect );
 		$horizontal = rand( 1, 100 ) % 2 == 1 ? 'left' : 'right';
 		$vertical = rand( 1, 100 ) %2 == 1 ? 'top' : 'bottom';
 
@@ -68,7 +69,8 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 * @param FunctionalTester $I The tester instance.
 	 */
 	public function testDirectImageSizes( FunctionalTester $I ) {
-		$width = $height = rand( 200, 300 );
+		$width = rand( 200, 300 );
+		$height = ceil( $width / $this->_aspect );
 
 		// without crop
 		$this->_assertImage( $I, array( $width, $height ), "-{$width}x{$height}\$1", 'check direct image size without crop' );
@@ -85,24 +87,16 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	public function testIncompleteSizes( FunctionalTester $I ) {
 		$size = '_ten_gi_size_' . rand( 0, 100 );
 		$dimension = rand( 200, 300 );
-		$width = ceil( $dimension * 900 / 700 );
-		$height = ceil( $dimension * 700 / 900 );
+		$width = ceil( $dimension * $this->_aspect );
+		$height = ceil( $dimension / $this->_aspect );
 
 		// image size without height
-		add_image_size( $size, $dimension, 0, true );
-		$this->_assertImage( $I, $size, "-{$dimension}x{$height}c\$1", 'check incomplete image size without height' );
+		add_image_size( $size, $dimension );
+		$this->_assertImage( $I, $size, "-{$dimension}x{$height}\$1", 'check incomplete image size without height' );
 
 		// image size without width
-		add_image_size( $size, 0, $dimension, true );
-		$this->_assertImage( $I, $size, "-{$width}x{$dimension}c\$1", 'check incomplete image size without width' );
-
-		// image size without height and crop
-		add_image_size( $size, $dimension );
-		$this->_assertImage( $I, $size, "-{$dimension}x{$height}\$1", 'check incomplete image size without height and crop' );
-
-		// image size without width and crop
 		add_image_size( $size, 0, $dimension );
-		$this->_assertImage( $I, $size, "-{$width}x{$dimension}\$1", 'check incomplete image size without width and crop' );
+		$this->_assertImage( $I, $size, "-{$width}x{$dimension}\$1", 'check incomplete image size without width' );
 	}
 
 }
