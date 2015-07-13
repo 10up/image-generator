@@ -154,6 +154,15 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 	}
 
 	list( $width, $height, $crop ) = $dimensions;
+	if ( empty( $width ) && empty( $height ) ) {
+		return $downsize;
+	}
+
+	if ( empty( $width ) ) {
+		$width = ceil( $height * $meta['width'] / $meta['height'] );
+	} elseif ( empty( $height ) ) {
+		$height = ceil( $width * $meta['height'] / $meta['width'] );
+	}
 
 	if ( ! empty( $crop ) ) {
 		if ( is_array( $crop ) && count( $crop ) >= 2 ) {
