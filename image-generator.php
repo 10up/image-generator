@@ -158,10 +158,16 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 		return $downsize;
 	}
 
+	$had_empty_width = false;
 	if ( empty( $width ) ) {
-		$width = ceil( $height * $meta['width'] / $meta['height'] );
+		$had_empty_width = true;
+		$width = empty( $crop )
+			? ceil( $height * $meta['width'] / $meta['height'] )
+			: $height;
 	} elseif ( empty( $height ) ) {
-		$height = ceil( $width * $meta['height'] / $meta['width'] );
+		$height = empty( $crop )
+			? ceil( $width * $meta['height'] / $meta['width'] )
+			: $width;
 	}
 
 	if ( ! empty( $crop ) ) {
@@ -175,9 +181,7 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 		if ( empty( $height ) ) {
 			$height = $width;
 		}
-	} else {
-		// we don't need to crop image, so we need to calculate proper width
-		// of the image with saving proper aspect ratio
+	} elseif ( ! $had_empty_width ) {
 		$height = ceil( $width * $meta['height'] / $meta['width'] );
 	}
 
