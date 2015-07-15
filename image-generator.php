@@ -104,6 +104,7 @@ function tenup_ig_generate_image() {
 	}
 
 	// resize image
+	add_filter( 'image_resize_dimensions', 'tenup_ig_get_resize_dimensions', 10, 6 );
 	$resized = $editor->resize( $width, $height, $crop );
 	if ( is_wp_error( $resized ) ) {
 		_tenup_ig_send_not_found();
@@ -193,3 +194,72 @@ function tenup_ig_get_image_downsize( $downsize, $image_id, $size ) {
 	);
 }
 add_filter( 'image_downsize', 'tenup_ig_get_image_downsize', 10, 3 );
+
+/**
+ * Returns proper resize dimentions.
+ *
+ * @param array|null $dimensions The incoming dimensions.
+ * @param int $orig_w The original width.
+ * @param int $orig_h The original height.
+ * @param int $dest_w The destination width.
+ * @param int $dest_h The destination height.
+ * @param boolean|array $crop Determines whether or not we should crop an image.
+ * @return array Dimensions array.
+ */
+function tenup_ig_get_resize_dimensions( $dimensions, $orig_w, $orig_h, $dest_w, $dest_h, $crop ) {
+	if ( $crop ) {
+		// crop the largest possible portion of the original image that we can size to $dest_w x $dest_h
+		$aspect_ratio = $orig_w / $orig_h;
+		$new_w = min( $dest_w, $orig_w );
+		$new_h = min( $dest_h, $orig_h );
+
+		if ( ! $new_w ) {
+			$new_w = (int) round( $new_h * $aspect_ratio );
+		}
+
+		if ( ! $new_h ) {
+			$new_h = (int) round( $new_w / $aspect_ratio );
+		}
+
+		$size_ratio = max( $new_w / $orig_w, $new_h / $orig_h );
+
+		$crop_w = round( $new_w / $size_ratio );
+		$crop_h = round( $new_h / $size_ratio );
+		if ( ! is_array( $crop ) || count( $crop ) !== 2 ) {
+			$crop = array( 'center', 'center' );
+		}
+
+		list( $x, $y ) = $crop;
+
+		if ( 'left' === $x ) {
+			$s_x = 0;
+		} elseif ( 'right' === $x ) {
+			$s_x = $orig_w - $crop_w;
+		} else {
+			$s_x = floor( ( $orig_w - $crop_w ) / 2 );
+		}
+
+		if ( 'top' === $y ) {
+			$s_y = 0;
+		} elseif ( 'bottom' === $y ) {
+			$s_y = $orig_h - $crop_h;
+		} else {
+			$s_y = floor( ( $orig_h - $crop_h ) / 2 );
+		}
+	} else {
+		// don't crop, just resize using $dest_w x $dest_h as a maximum bounding box
+		$crop_w = $orig_w;
+		$crop_h = $orig_h;
+
+		$s_x = 0;
+		$s_y = 0;
+
+		list( $new_w, $new_h ) = wp_constrain_dimensions( $orig_w, $orig_h, $dest_w, $dest_h );
+	}
+
+	// the return array matches the parameters to imagecopyresampled()
+	// int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h
+	$dimensions = array( 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h );
+
+	return $dimensions;
+}
