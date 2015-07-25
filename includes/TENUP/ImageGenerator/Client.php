@@ -150,6 +150,20 @@ class Client {
 			$crop = false;
 		}
 
+		// grab provider name, use Standard provider by default
+		$provider = ucfirst( filter_input( INPUT_GET, 'provider' ) );
+		if ( empty( $provider ) ) {
+			$provider = 'Standard';
+		}
+
+		// create provider instance
+		$provider = "\TENUP\ImageGenerator\Provider\\{$provider}";
+		if ( ! class_exists( $provider ) ) {
+			$this->_send_not_found();
+		} else {
+			$provider = new $provider();
+		}
+
 		// generate and send image
 		$provider = new \TENUP\ImageGenerator\Provider\Standard();
 		$generated = $provider->generate( $image, $width, $height, $crop, $extension );

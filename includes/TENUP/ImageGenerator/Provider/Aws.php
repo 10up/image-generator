@@ -1,13 +1,4 @@
 <?php
-/**
- * Plugin Name: Image Generator
- * Plugin URI: https://github.com/10up/Image-Generator
- * Description: Generates images on the fly.
- * Author: 10up Inc
- * Author URI: https://10up.com/
- * Version: 1.1.0
- * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- */
 
 // +----------------------------------------------------------------------+
 // | Copyright 2015 10up Inc                                              |
@@ -27,37 +18,39 @@
 // | MA 02110-1301 USA                                                    |
 // +----------------------------------------------------------------------+
 
-// do nothing if PHP version is less than 5.5
-if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
-	return;
+namespace TENUP\ImageGenerator\Provider;
+
+class Aws extends \TENUP\ImageGenerator\Provider {
+
+	/**
+	 * Generates an image and saves it in an appropriate place.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 * @param string $image The image URL.
+	 * @param int $width The image width.
+	 * @param int $height The image height.
+	 * @param bool|array $crop Determines whether or not to crop the image. If passed array, will be used to determine cropping center.
+	 * @param string $extension The image extension.
+	 * @return boolean TRUE on success, otherwise FALSE.
+	 */
+	public function generate( $image, $width, $height, $crop, $extension ) {
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/Aws/aws.phar';
+		
+		return false;
+	}
+
+	/**
+	 * Sends image to browser.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 * @return boolean TRUE on sucess, otherwise FALSE.
+	 */
+	public function send() {
+		return false;
+	}
+
 }
-
-// setup autoloader for the plugin
-spl_autoload_register( function( $class ) {
-	$file = str_replace( array( '_', '\\' ), DIRECTORY_SEPARATOR, $class );
-	$file = implode( DIRECTORY_SEPARATOR, array( __DIR__, 'includes', $file . '.php' ) );
-	if ( is_readable( $file ) ) {
-		require_once $file;
-		return true;
-	}
-
-	return false;
-} );
-
-// let's call self-invoked function to not pollute global namespace
-call_user_func( function() {
-	global $image_generator;
-
-	// do nothing if image generator is already defined
-	if ( ! empty( $image_generator ) ) {
-		return;
-	}
-
-	// define constants
-	define( 'TENUP_IMAGEGENERATOR_VERSION', '1.1.0' );
-	define( 'TENUP_IMAGEGENERATOR_ABSPATH', __DIR__ );
-
-	// create a new instance of image generator and attach its hooks
-	$image_generator = new \TENUP\ImageGenerator\Client();
-	$image_generator->attach();
-} );
