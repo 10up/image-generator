@@ -54,6 +54,6 @@ call_user_func( function() {
 	}
 
 	// create a new instance of image generator and attach its hooks
-	$image_generator = new \TENUP\ImageGenerator();
+	$image_generator = new \TENUP\ImageGenerator\Client();
 	$image_generator->attach();
 } );

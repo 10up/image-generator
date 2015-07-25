@@ -18,9 +18,9 @@
 // | MA 02110-1301 USA                                                    |
 // +----------------------------------------------------------------------+
 
-namespace TENUP;
+namespace TENUP\ImageGenerator;
 
-class ImageGenerator {
+class Client {
 
 	/**
 	 * Attaches hooks for actions and filters.
