@@ -39,6 +39,22 @@ class ImageGenerator {
 	}
 
 	/**
+	 * Unregisters attached hooks.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 */
+	public function detach() {
+		// unregister action hooks
+		remove_action( 'wp_ajax_generate_image', array( $this, 'generate_image' ) );
+		remove_action( 'wp_ajax_nopriv_generate_image', array( $this, 'generate_image' ) );
+
+		// unregister filter hooks
+		remove_filter( 'image_downsize', array( $this, 'get_image_downsize' ), 10, 3 );
+	}
+
+	/**
 	 * Sends 404 not found response and exits.
 	 *
 	 * @since 1.0.0
