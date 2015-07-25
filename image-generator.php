@@ -5,7 +5,7 @@
  * Description: Generates images on the fly.
  * Author: 10up Inc
  * Author URI: https://10up.com/
- * Version: 1.0.0
+ * Version: 1.1.0
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
