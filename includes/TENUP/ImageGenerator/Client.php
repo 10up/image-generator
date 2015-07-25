@@ -135,20 +135,9 @@ class Client {
 		// extract image, dimensions and extension
 		list( $image, $width, $height, $crop, $extension ) = $matches;
 
-		// build paths to original and requested images
-		$uploads = wp_upload_dir();
-		$rel_path = str_replace( parse_url( $uploads['baseurl'], PHP_URL_PATH ), '', $image );
-
-		$requested_image = $uploads['basedir'] . $rel_path;
-
-		$original_image = str_replace( "-{$width}x{$height}{$crop}{$extension}", $extension, $rel_path );
-		$original_image = $uploads['basedir'] . $original_image;
-
-		// generate requested image
-		$editor = wp_get_image_editor( $original_image );
-		if ( is_wp_error( $editor ) ) {
-			$this->_send_not_found();
-		}
+		// prepare width and height
+		$width = intval( $width );
+		$height = intval( $height );
 
 		// prepare crop settings
 		if ( !empty( $crop ) ) {
@@ -161,25 +150,13 @@ class Client {
 			$crop = false;
 		}
 
-		// resize image
-		add_filter( 'image_resize_dimensions', array( $this, 'get_resize_dimensions' ), 10, 6 );
-		$resized = $editor->resize( $width, $height, $crop );
-		if ( is_wp_error( $resized ) ) {
+		// generate and send image
+		$provider = new \TENUP\ImageGenerator\Provider\Standard();
+		$generated = $provider->generate( $image, $width, $height, $crop, $extension );
+		if ( $generated || ! $provider->send() ) {
 			$this->_send_not_found();
 		}
 
-		// save to disk
-		$editor->save( $requested_image );
-
-		// smash generated image
-		// currently it is not clear how to do it to achive the best results,
-		// probably we could use Kraken.io or something similar, the perfect
-		// tool for this is Google PageSpeed module for Nginx, but I'm not sure
-		// if WPEngine supports it...
-		//
-		// https://kraken.io/docs/getting-started
-		// send it in the response
-		$editor->stream();
 		exit;
 	}
 
@@ -245,79 +222,6 @@ class Client {
 			$height,
 			!empty( $crop ),
 		);
-	}
-
-	/**
-	 * Returns proper resize dimentions.
-	 *
-	 * @since 1.0.0
-	 * @filter image_resize_dimensions
-	 *
-	 * @access public
-	 * @param array|null $dimensions The incoming dimensions.
-	 * @param int $orig_w The original width.
-	 * @param int $orig_h The original height.
-	 * @param int $dest_w The destination width.
-	 * @param int $dest_h The destination height.
-	 * @param boolean|array $crop Determines whether or not we should crop an image.
-	 * @return array Dimensions array.
-	 */
-	public function get_resize_dimensions( $dimensions, $orig_w, $orig_h, $dest_w, $dest_h, $crop ) {
-		if ( $crop ) {
-			// crop the largest possible portion of the original image that we can size to $dest_w x $dest_h
-			$aspect_ratio = $orig_w / $orig_h;
-			$new_w = min( $dest_w, $orig_w );
-			$new_h = min( $dest_h, $orig_h );
-
-			if ( !$new_w ) {
-				$new_w = (int) round( $new_h * $aspect_ratio );
-			}
-
-			if ( !$new_h ) {
-				$new_h = (int) round( $new_w / $aspect_ratio );
-			}
-
-			$size_ratio = max( $new_w / $orig_w, $new_h / $orig_h );
-
-			$crop_w = round( $new_w / $size_ratio );
-			$crop_h = round( $new_h / $size_ratio );
-			if ( !is_array( $crop ) || count( $crop ) !== 2 ) {
-				$crop = array( 'center', 'center' );
-			}
-
-			list( $x, $y ) = $crop;
-
-			if ( 'left' === $x ) {
-				$s_x = 0;
-			} elseif ( 'right' === $x ) {
-				$s_x = $orig_w - $crop_w;
-			} else {
-				$s_x = floor( ( $orig_w - $crop_w ) / 2 );
-			}
-
-			if ( 'top' === $y ) {
-				$s_y = 0;
-			} elseif ( 'bottom' === $y ) {
-				$s_y = $orig_h - $crop_h;
-			} else {
-				$s_y = floor( ( $orig_h - $crop_h ) / 2 );
-			}
-		} else {
-			// don't crop, just resize using $dest_w x $dest_h as a maximum bounding box
-			$crop_w = $orig_w;
-			$crop_h = $orig_h;
-
-			$s_x = 0;
-			$s_y = 0;
-
-			list( $new_w, $new_h ) = wp_constrain_dimensions( $orig_w, $orig_h, $dest_w, $dest_h );
-		}
-
-		// the return array matches the parameters to imagecopyresampled()
-		// int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h
-		$dimensions = array( 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h );
-
-		return $dimensions;
 	}
 
 }
