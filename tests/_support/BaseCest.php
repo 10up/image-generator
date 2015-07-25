@@ -1,6 +1,10 @@
 <?php
 
-class Tenup_IG_BaseCest {
+namespace TENUP\ImageGenerator\Tests;
+
+use TENUP\ImageGenerator\Tests\FunctionalTester;
+
+class BaseCest {
 
 	/**
 	 * The factory instance.
@@ -46,7 +50,7 @@ class Tenup_IG_BaseCest {
 	 * Creates a new attachment for a test.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function _before( FunctionalTester $I ) {
 		if ( ! $this->_factory ) {
@@ -78,7 +82,7 @@ class Tenup_IG_BaseCest {
 	 * Cleans up created content.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function _after( FunctionalTester $I ) {
 		if ( $this->_factory ) {

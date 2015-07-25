@@ -1,8 +1,10 @@
 <?php
 
-require_once codecept_root_dir() . 'tests/_support/BaseCest.php';
+namespace TENUP\ImageGenerator\Tests;
 
-class DownsizeCest extends Tenup_IG_BaseCest {
+use TENUP\ImageGenerator\Tests\FunctionalTester;
+
+class DownsizeCest extends BaseCest {
 
 	/**
 	 * Checks image with certain size and replace pattern.
@@ -26,7 +28,7 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 * Checks if downsize returns url to a full size image if not existing image size is passed.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function testNotExistingImageSize( FunctionalTester $I ) {
 		$image = wp_get_attachment_image_src( $this->_attachment->ID, 'non-existing-image-size' . rand( 0, 100 ) );
@@ -40,7 +42,7 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 * Checks existing image size.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function testCustomImageSizes( FunctionalTester $I ) {
 		$size = '_ten_gi_size_' . rand( 0, 100 );
@@ -66,7 +68,7 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 * Checks image downsize generation for cases when a direct image size is passed.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function testDirectImageSizes( FunctionalTester $I ) {
 		$width = rand( 200, 300 );
@@ -82,7 +84,7 @@ class DownsizeCest extends Tenup_IG_BaseCest {
 	 * Checks incomplete sizes.
 	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function testIncompleteSizes( FunctionalTester $I ) {
 		$size = '_ten_gi_size_' . rand( 0, 100 );

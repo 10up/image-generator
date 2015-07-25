@@ -1,14 +1,16 @@
 <?php
 
-require_once codecept_root_dir() . 'tests/_support/BaseCest.php';
+namespace TENUP\ImageGenerator\Tests;
 
-class GeneratorCest extends Tenup_IG_BaseCest {
+use TENUP\ImageGenerator\Tests\FunctionalTester;
+
+class GeneratorCest extends BaseCest {
 
 	/**
 	 * Tests image generation.
-	 * 
+	 *
 	 * @access public
-	 * @param FunctionalTester $I The tester instance.
+	 * @param \TENUP\ImageGenerator\Tests\FunctionalTester $I The tester instance.
 	 */
 	public function testImageGeneration( FunctionalTester $I ) {
 
