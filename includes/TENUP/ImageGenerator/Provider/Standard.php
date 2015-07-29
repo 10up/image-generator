@@ -84,7 +84,7 @@ class Standard extends \TENUP\ImageGenerator\Provider {
 	 */
 	public function send() {
 		// return FALSE if editor is not created
-		if ( ! $this->_editor ) {
+		if ( ! $this->_editor || is_wp_error( $this->_editor ) ) {
 			return false;
 		}
 
