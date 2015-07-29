@@ -1,0 +1,16 @@
+{
+  "name": "10up/image-generator",
+  "description": "Image Generator",
+  "type": "wordpress-plugin",
+  "keywords": ["wordpress", "plugin", "image"],
+  "authors": [
+    {
+      "name": "10up",
+      "homepage": "http://10up.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.2",
+    "composer/installers": "~1.0"
+  }
+}
