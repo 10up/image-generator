@@ -194,11 +194,11 @@ class Client {
 		}
 
 		$dimensions = $this->_get_size_dinmensions( $size );
-		if ( !$dimensions ) {
+		if ( ! $dimensions ) {
 			return $downsize;
 		}
 
-		if ( !isset( $dimensions[2] ) ) {
+		if ( ! isset( $dimensions[2] ) ) {
 			$dimensions[2] = false;
 		}
 
@@ -228,6 +228,18 @@ class Client {
 			}
 		} elseif ( !$had_empty_width ) {
 			$height = ceil( $width * $meta['height'] / $meta['width'] );
+		}
+
+		$meta_size = is_array( $size ) ? sha1( serialize( $size ) ) : $size;
+		if ( empty( $meta['sizes'][ $meta_size ] ) ) {
+			$meta['sizes'][ $meta_size ] = array(
+				'file'      => preg_replace( '~(\.\w+)$~', "-{$width}x{$height}{$crop}$1", basename( $img_url ) ),
+				'width'     => $width,
+				'height'    => (int) $height,
+				'mime-type' => get_post_mime_type( $image_id ),
+			);
+
+			wp_update_attachment_metadata( $image_id, $meta );
 		}
 
 		return array(
