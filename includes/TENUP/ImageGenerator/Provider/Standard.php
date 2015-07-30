@@ -52,7 +52,14 @@ class Standard extends \TENUP\ImageGenerator\Provider {
 
 		$requested_image = $uploads['basedir'] . $rel_path;
 
-		$original_image = str_replace( "-{$width}x{$height}{$crop}{$extension}", $extension, $rel_path );
+		$_crop = '';
+		if ( is_array( $crop ) ) {
+			$_crop = implode( 'x', $crop );
+		} elseif ( $crop ) {
+			$_crop = 'c';
+		}
+
+		$original_image = str_replace( "-{$width}x{$height}{$_crop}{$extension}", $extension, $rel_path );
 		$original_image = $uploads['basedir'] . $original_image;
 
 		// generate requested image

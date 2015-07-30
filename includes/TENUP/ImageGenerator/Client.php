@@ -140,7 +140,7 @@ class Client {
 		$height = intval( $height );
 
 		// prepare crop settings
-		if ( !empty( $crop ) ) {
+		if ( ! empty( $crop ) ) {
 			if ( 'c' == $crop ) {
 				$crop = true;
 			} else {
@@ -167,7 +167,7 @@ class Client {
 		// generate and send image
 		$provider = new \TENUP\ImageGenerator\Provider\Standard();
 		$generated = $provider->generate( $image, $width, $height, $crop, $extension );
-		if ( $generated || ! $provider->send() ) {
+		if ( ! $generated || ! $provider->send() ) {
 			$this->_send_not_found();
 		}
 
