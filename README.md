@@ -14,16 +14,18 @@ location @img_proxy {
 
 ## Amazon S3 config
 
+To make it working with Amazon S3 you need to enable website hosting for your bucket in S3 console and update redirection rules by adding following snippet:
+
 ```Bash
-<RoutingRule>
-    <Condition>
-        <KeyPrefixEquals>this/directory/</KeyPrefixEquals>
-        <HttpErrorCodeReturnedEquals>404</HttpErrorCodeReturnedEquals>
-    </Condition>
-    <Redirect>
-        <Protocol>http</Protocol>
-        <HostName>your.site.com</HostName>
-        <ReplaceKeyPrefixWith>wp-admin/admin-ajax.php?action=generate_image&provider=aws</ReplaceKeyPrefixWith>
-    </Redirect>
-</RoutingRule>
+ <RoutingRules>
+	<RoutingRule>
+		<Condition>
+			<HttpErrorCodeReturnedEquals>403</HttpErrorCodeReturnedEquals >
+		</Condition>
+		<Redirect>
+			<HostName>yousite.com</HostName>
+			<ReplaceKeyPrefixWith>wp-admin/admin-ajax.php?action=generate_image&amp;provider=aws&amp;image=</ReplaceKeyPrefixWith>
+		</Redirect>
+	</RoutingRule>
+</RoutingRules>
 ```
