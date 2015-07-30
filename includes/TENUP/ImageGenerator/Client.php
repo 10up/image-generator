@@ -113,22 +113,30 @@ class Client {
 	 * @access public
 	 */
 	public function generate_image() {
-		$matches = array();
-		$image = current( explode( '?', $_SERVER['REQUEST_URI'] ) );
-
-		// do nothing if referer empty or from else site
+		// do nothing if referer empty
 		$referer = wp_get_referer();
-		$referer_host = false;
-		if ( ! empty( $referer ) ) {
-			$referer_host = parse_url( $referer, PHP_URL_HOST );
-		}
-
-		if ( empty( $referer ) || $referer_host != parse_url( home_url(), PHP_URL_HOST ) ) {
+		if ( empty( $referer ) ) {
 			$this->_send_not_found();
 		}
 
+		// grab provider name, use Standard provider by default
+		$provider = ucfirst( filter_input( INPUT_GET, 'provider' ) );
+		if ( empty( $provider ) ) {
+			$provider = 'Standard';
+		}
+
+		// create provider instance
+		$provider = "\TENUP\ImageGenerator\Provider\\{$provider}";
+		if ( ! class_exists( $provider ) ) {
+			$this->_send_not_found();
+		} else {
+			$provider = new $provider();
+		}
+
 		// do nothing if image doesn't have dimensions
-		if ( ! preg_match( '~.*?\-(\d+)x(\d+)?(c|\:\w+x\w+)?(\.\w+)$~', $image, $matches ) ) {
+		$image = $provider->get_image_url();
+		$matches = $provider->parse_image( $image );
+		if ( empty( $matches ) ) {
 			$this->_send_not_found();
 		}
 
@@ -150,22 +158,7 @@ class Client {
 			$crop = false;
 		}
 
-		// grab provider name, use Standard provider by default
-		$provider = ucfirst( filter_input( INPUT_GET, 'provider' ) );
-		if ( empty( $provider ) ) {
-			$provider = 'Standard';
-		}
-
-		// create provider instance
-		$provider = "\TENUP\ImageGenerator\Provider\\{$provider}";
-		if ( ! class_exists( $provider ) ) {
-			$this->_send_not_found();
-		} else {
-			$provider = new $provider();
-		}
-
 		// generate and send image
-		$provider = new \TENUP\ImageGenerator\Provider\Standard();
 		$generated = $provider->generate( $image, $width, $height, $crop, $extension );
 		if ( ! $generated || ! $provider->send() ) {
 			$this->_send_not_found();

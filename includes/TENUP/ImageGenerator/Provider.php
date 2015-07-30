@@ -48,4 +48,32 @@ abstract class Provider {
 	 */
 	public abstract function send();
 
+	/**
+	 * Returns requested image URL.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 * @return string The image URL.
+	 */
+	public function get_image_url() {
+		return current( explode( '?', $_SERVER['REQUEST_URI'] ) );
+	}
+
+	/**
+	 * Parses image and returns size information.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 * @param string $image The image URL.
+	 * @return array|false The size information on success, otherwise FALSE.
+	 */
+	public function parse_image( $image ) {
+		$matches = array();
+		$pattern = '~.*?\-(\d+)x(\d+)?(c|\:\w+x\w+)?(\.\w+)$~';
+
+		return preg_match( $pattern, $image, $matches ) ? $matches : false;
+	}
+
 }

@@ -37,7 +37,7 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 */
 	public function generate( $image, $width, $height, $crop, $extension ) {
 		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/Aws/aws.phar';
-		
+
 		return false;
 	}
 
@@ -51,6 +51,18 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 */
 	public function send() {
 		return false;
+	}
+
+	/**
+	 * Returns requested image URL.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @access public
+	 * @return string The image URL.
+	 */
+	public function get_image_url() {
+		return filter_input( INPUT_GET, 'image' );
 	}
 
 }
