@@ -29,3 +29,12 @@ To make it working with Amazon S3 you need to enable website hosting for your bu
 	</RoutingRule>
 </RoutingRules>
 ```
+
+Also you need to define ACCESS KEY, SECRET, REGION and BUCKET constants in your wp-config.php file:
+
+```PHP
+define( 'AWS_ACCESS_KEY_ID', '...' );
+define( 'AWS_SECRET_ACCESS_KEY', '...' );
+define( 'AWS_S3_REGION', '...' );
+define( 'AWS_S3_BUCKET', '...' );
+```

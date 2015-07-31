@@ -116,7 +116,7 @@ class Client {
 		// do nothing if referer empty
 		$referer = wp_get_referer();
 		if ( empty( $referer ) ) {
-			$this->_send_not_found();
+//			$this->_send_not_found();
 		}
 
 		// grab provider name, use Standard provider by default

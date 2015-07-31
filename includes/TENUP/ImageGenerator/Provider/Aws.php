@@ -36,20 +36,73 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 * @return boolean TRUE on success, otherwise FALSE.
 	 */
 	public function generate( $image, $width, $height, $crop, $extension ) {
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/Aws/aws.phar';
+		// do nothing if access key and secret are not provided
+		if ( ! defined( 'AWS_ACCESS_KEY_ID' ) || ! defined( 'AWS_SECRET_ACCESS_KEY' ) || ! defined( 'AWS_S3_BUCKET' ) ) {
+			return false;
+		}
 
-		return false;
-	}
+		// load libraries
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/Aws/functions.php';
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/functions.php';
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/Psr7/functions.php';
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/Promise/functions.php';
+		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/JmesPath/JmesPath.php';
 
-	/**
-	 * Sends image to browser.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @access public
-	 * @return boolean TRUE on sucess, otherwise FALSE.
-	 */
-	public function send() {
+		try {
+			$s3 = new \Aws\S3\S3Client( array(
+				'version' => 'latest',
+				'region'  => AWS_S3_REGION,
+				'credentials' => array(
+					'key'    => AWS_ACCESS_KEY_ID,
+					'secret' => AWS_SECRET_ACCESS_KEY,
+				),
+			) );
+
+			try {
+				// check if image already created and return false if it exists
+				$object = $s3->getObject( array( 'Bucket' => AWS_S3_BUCKET, 'Key' => $image ) );
+				return false;
+			} catch ( \Exception $e ) {
+				// exception means that object doesn't exist yet and we need to generate it
+			}
+
+			$filename = wp_tempnam();
+			$original = $this->_get_original_image( $image, $width, $height, $crop, $extension );
+
+			// download original file from S3 storage
+			$object = $s3->getObject( array( 'Bucket' => AWS_S3_BUCKET, 'Key' => $original ) );
+			file_put_contents( $filename, $object->get( 'Body' )->getContents() );
+
+			// init image editor
+			$this->_editor = wp_get_image_editor( $filename );
+			if ( is_wp_error( $this->_editor ) ) {
+				return false;
+			}
+
+			// resize image
+			add_filter( 'image_resize_dimensions', array( $this, 'get_resize_dimensions' ), 10, 6 );
+			$resized = $this->_editor->resize( $width, $height, $crop );
+			if ( is_wp_error( $resized ) ) {
+				return false;
+			}
+
+			// save to disk
+			$saved = $this->_editor->save();
+			if ( ! is_wp_error( $saved ) ) {
+				// save to S3 storage
+				$s3->putObject( array(
+					'Bucket'      => AWS_S3_BUCKET,
+					'Key'         => $image,
+					'ACL'         => 'public-read',
+					'Body'        => file_get_contents( $saved['path'] ),
+					'ContentType' => $saved['mime-type'],
+				) );
+
+				return true;
+			}
+		} catch( \Exception $e ) {
+		}
+
 		return false;
 	}
 
