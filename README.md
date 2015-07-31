@@ -17,7 +17,7 @@ location @img_proxy {
 To make it working with Amazon S3 you need to enable website hosting for your bucket in S3 console and update redirection rules by adding following snippet:
 
 ```Bash
- <RoutingRules>
+<RoutingRules>
 	<RoutingRule>
 		<Condition>
 			<HttpErrorCodeReturnedEquals>403</HttpErrorCodeReturnedEquals >

@@ -91,11 +91,12 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 			if ( ! is_wp_error( $saved ) ) {
 				// save to S3 storage
 				$s3->putObject( array(
-					'Bucket'      => AWS_S3_BUCKET,
-					'Key'         => $image,
-					'ACL'         => 'public-read',
-					'Body'        => file_get_contents( $saved['path'] ),
-					'ContentType' => $saved['mime-type'],
+					'Bucket'       => AWS_S3_BUCKET,
+					'Key'          => $image,
+					'ACL'          => 'public-read',
+					'Body'         => file_get_contents( $saved['path'] ),
+					'ContentType'  => $saved['mime-type'],
+					'StorageClass' => 'STANDARD',
 				) );
 
 				return true;
