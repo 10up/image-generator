@@ -1,3 +1,4 @@
+namespace: TENUP\ImageGenerator\Tests
 actor: Tester
 paths:
     tests: tests
@@ -5,6 +6,6 @@ paths:
     data: tests/_data
     helpers: tests/_support
 settings:
-    bootstrap: false
+    bootstrap: _bootstrap.php
     colors: true
     memory_limit: 256M
