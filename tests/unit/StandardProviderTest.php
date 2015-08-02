@@ -102,4 +102,15 @@ class StandardProviderTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( ":{$horizontal}x{$vertical}", $parsed[3], 'The fourth parameter should not be empty for image with crop.' );
 	}
 
+	/**
+	 * Tests Provider::send() method.
+	 *
+	 * @access public
+	 * @see \TENUP\ImageGenerator\Provider::send()
+	 */
+	public function testSend() {
+		$sent = $this->_provider->send();
+		$this->assertFalse( $sent, 'Since we have not generated image send() method should always return FALSE.' );
+	}
+
 }
