@@ -1,2 +1,3 @@
 /tests/_output/
 /tests/functional/FunctionalTester.php
+/tests/unit/UnitTester.php
