@@ -28,6 +28,7 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 * @since 1.1.0
 	 *
 	 * @access public
+	 * @global \TENUP\ImageGenerator\Client $image_generator The instance of the image generator class.
 	 * @param string $image The image URL.
 	 * @param int $width The image width.
 	 * @param int $height The image height.
@@ -36,9 +37,17 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 * @return boolean TRUE on success, otherwise FALSE.
 	 */
 	public function generate( $image, $width, $height, $crop, $extension ) {
+		global $image_generator;
+
 		// do nothing if access key and secret are not provided
 		if ( ! defined( 'AWS_ACCESS_KEY_ID' ) || ! defined( 'AWS_SECRET_ACCESS_KEY' ) || ! defined( 'AWS_S3_BUCKET' ) ) {
 			return false;
+		}
+
+		// register required namespaces for autoloading
+		$loader = $image_generator->autoloader();
+		if ( $loader ) {
+			$loader->add_namespaces( 'Aws', 'Psr\Http\Message', 'JmesPath', 'GuzzleHttp' );
 		}
 
 		// load libraries
