@@ -48,6 +48,14 @@ class S3Uploads extends \TENUP\ImageGenerator\Provider\Aws {
 			$s3 = $s3_uploads->s3();
 			$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
 
+			try {
+				// check if image already created and return false if it exists
+				$object = $s3->getObject( array( 'Bucket' => $bucket, 'Key' => $image ) );
+				return false;
+			} catch ( \Exception $e ) {
+				// exception means that object doesn't exist yet and we need to generate it
+			}
+
 			$filename = wp_tempnam() . $extension;
 			$original = $this->_get_original_image( $image, $width, $height, $crop, $extension );
 
