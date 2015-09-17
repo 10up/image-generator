@@ -5,7 +5,7 @@
  * Description: Generates images on the fly.
  * Author: 10up Inc
  * Author URI: https://10up.com/
- * Version: 1.1.0
+ * Version: 1.2.0
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
@@ -32,18 +32,6 @@ if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
 	return;
 }
 
-// setup autoloader for the plugin
-spl_autoload_register( function( $class ) {
-	$file = str_replace( array( '_', '\\' ), DIRECTORY_SEPARATOR, $class );
-	$file = implode( DIRECTORY_SEPARATOR, array( __DIR__, 'includes', $file . '.php' ) );
-	if ( is_readable( $file ) ) {
-		require_once $file;
-		return true;
-	}
-
-	return false;
-} );
-
 // let's call self-invoked function to not pollute global namespace
 call_user_func( function() {
 	global $image_generator;
@@ -54,10 +42,18 @@ call_user_func( function() {
 	}
 
 	// define constants
-	define( 'TENUP_IMAGEGENERATOR_VERSION', '1.1.0' );
+	define( 'TENUP_IMAGEGENERATOR_VERSION', '1.2.0' );
 	define( 'TENUP_IMAGEGENERATOR_ABSPATH', __DIR__ );
+
+	require_once 'includes/TENUP/ImageGenerator/Autoloader.php';
+
+	// register autoloader
+	$loader = new \TENUP\ImageGenerator\Autoloader();
+	$loader->add_namespaces( 'TENUP\ImageGenerator' );
+	$loader->register();
 
 	// create a new instance of image generator and attach its hooks
 	$image_generator = new \TENUP\ImageGenerator\Client();
+	$image_generator->autoloader( $loader );
 	$image_generator->attach();
 } );
