@@ -30,6 +30,8 @@ To make it working with Amazon S3 you need to enable website hosting for your bu
 </RoutingRules>
 ```
 
+Please, pay attention to the *HttpErrorCodeReturnedEquals* parameter. It might accept either 403 or 404 code depending on a bucket settings.
+
 Also you need to define ACCESS KEY, SECRET, REGION and BUCKET constants in your wp-config.php file:
 
 ```PHP
