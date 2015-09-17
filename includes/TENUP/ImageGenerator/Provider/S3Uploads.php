@@ -20,15 +20,14 @@
 
 namespace TENUP\ImageGenerator\Provider;
 
-class Aws extends \TENUP\ImageGenerator\Provider {
+class S3Uploads extends \TENUP\ImageGenerator\Provider\Aws {
 
 	/**
 	 * Generates an image and saves it in an appropriate place.
 	 *
-	 * @since 1.1.0
+	 * @since 1.2.0
 	 *
 	 * @access public
-	 * @global \TENUP\ImageGenerator\Client $image_generator The instance of the image generator class.
 	 * @param string $image The image URL.
 	 * @param int $width The image width.
 	 * @param int $height The image height.
@@ -37,50 +36,24 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 	 * @return boolean TRUE on success, otherwise FALSE.
 	 */
 	public function generate( $image, $width, $height, $crop, $extension ) {
-		global $image_generator;
-
-		// do nothing if access key and secret are not provided
-		if ( ! defined( 'AWS_ACCESS_KEY_ID' ) || ! defined( 'AWS_SECRET_ACCESS_KEY' ) || ! defined( 'AWS_S3_BUCKET' ) ) {
-			return false;
+		// use Aws implementation if S3_Uploads class is not found
+		if ( ! class_exists( 'S3_Uploads' ) && defined( 'S3_UPLOADS_BUCKET' ) && ! empty( S3_UPLOADS_BUCKET ) ) {
+			return parent::generate( $image, $width, $height, $crop, $extension );
 		}
-
-		// register required namespaces for autoloading
-		$loader = $image_generator->autoloader();
-		if ( $loader ) {
-			$loader->add_namespaces( 'Aws', 'Psr\Http\Message', 'JmesPath', 'GuzzleHttp' );
-		}
-
-		// load libraries
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/Aws/functions.php';
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/functions.php';
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/Psr7/functions.php';
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/GuzzleHttp/Promise/functions.php';
-		require_once TENUP_IMAGEGENERATOR_ABSPATH . '/includes/JmesPath/JmesPath.php';
 
 		try {
-			$s3 = new \Aws\S3\S3Client( array(
-				'version' => 'latest',
-				'region'  => AWS_S3_REGION,
-				'credentials' => array(
-					'key'    => AWS_ACCESS_KEY_ID,
-					'secret' => AWS_SECRET_ACCESS_KEY,
-				),
-			) );
+			$s3_uploads = \S3_Uploads::get_instance();
+			$s3_uploads->tear_down();
 
-			try {
-				// check if image already created and return false if it exists
-				$object = $s3->getObject( array( 'Bucket' => AWS_S3_BUCKET, 'Key' => $image ) );
-				return false;
-			} catch ( \Exception $e ) {
-				// exception means that object doesn't exist yet and we need to generate it
-			}
+			$s3 = $s3_uploads->s3();
+			$bucket = strtok( S3_UPLOADS_BUCKET, '/' );
 
 			$filename = wp_tempnam() . $extension;
 			$original = $this->_get_original_image( $image, $width, $height, $crop, $extension );
 
 			// download original file from S3 storage
-			$object = $s3->getObject( array( 'Bucket' => AWS_S3_BUCKET, 'Key' => $original ) );
-			file_put_contents( $filename, $object->get( 'Body' )->getContents() );
+			$object = $s3->getObject( array( 'Bucket' => $bucket, 'Key' => $original ) );
+			file_put_contents( $filename, (string) $object->get( 'Body' ) );
 
 			// init image editor
 			$this->_editor = wp_get_image_editor( $filename );
@@ -100,7 +73,7 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 			if ( ! is_wp_error( $saved ) ) {
 				// save to S3 storage
 				$s3->putObject( array(
-					'Bucket'       => AWS_S3_BUCKET,
+					'Bucket'       => $bucket,
 					'Key'          => $image,
 					'ACL'          => 'public-read',
 					'Body'         => file_get_contents( $saved['path'] ),
@@ -110,22 +83,10 @@ class Aws extends \TENUP\ImageGenerator\Provider {
 
 				return true;
 			}
-		} catch( \Exception $e ) {
+		} catch ( \Exception $e ) {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Returns requested image URL.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @access public
-	 * @return string The image URL.
-	 */
-	public function get_image_url() {
-		return filter_input( INPUT_GET, 'image' );
 	}
 
 }
