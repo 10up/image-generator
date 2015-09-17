@@ -30,7 +30,7 @@ To make it working with Amazon S3 you need to enable website hosting for your bu
 </RoutingRules>
 ```
 
-Also you need to define ACCESS KEY, SECRET, REGION and BUCKET constants in your wp-config.php file:
+Please, pay attention to the *HttpErrorCodeReturnedEquals* parameter. It might accept either 403 or 404 code depending on a bucket settings. Also if you use [S3 Uploads](https://github.com/humanmade/S3-Uploads) plugin, then you need to use `S3Uploads` provider name instead of `aws` as shown above. Finally if you stick with `aws` provider, then you need to define ACCESS KEY, SECRET, REGION and BUCKET constants in your wp-config.php file:
 
 ```PHP
 define( 'AWS_ACCESS_KEY_ID', '...' );

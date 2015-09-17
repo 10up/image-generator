@@ -23,6 +23,16 @@ namespace TENUP\ImageGenerator;
 class Client {
 
 	/**
+	 * The instance of autoloader class.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @access protected
+	 * @var \TENUP\ImageGenerator\Autoloader
+	 */
+	protected $_autoloader;
+
+	/**
 	 * Attaches hooks for actions and filters.
 	 *
 	 * @since 1.1.0
@@ -52,6 +62,24 @@ class Client {
 
 		// unregister filter hooks
 		remove_filter( 'image_downsize', array( $this, 'get_image_downsize' ), 10, 3 );
+	}
+
+	/**
+	 * Sets a new autoloader instance. If new autoloader is not provided, will return already registered autoloader.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @access public
+	 * @param \TENUP\ImageGenerator\Autoloader $autoloader The autoloader instance.
+	 * @return \TENUP\ImageGenerator\Autoloader The autoloader instance if it has been registered, otherwise NULL.
+	 */
+	public function autoloader( $autoloader = null ) {
+		$old_autoloader = $this->_autoloader;
+		if ( $autoloader ) {
+			$this->_autoloader = $autoloader;
+		}
+
+		return $old_autoloader;
 	}
 
 	/**
