@@ -25,6 +25,7 @@ To make it working with Amazon S3 you need to enable website hosting for your bu
 		<Redirect>
 			<HostName>yousite.com</HostName>
 			<ReplaceKeyPrefixWith>wp-admin/admin-ajax.php?action=generate_image&amp;provider=aws&amp;image=</ReplaceKeyPrefixWith>
+			<HttpRedirectCode>302</HttpRedirectCode>
 		</Redirect>
 	</RoutingRule>
 </RoutingRules>

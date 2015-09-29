@@ -62,6 +62,9 @@ abstract class Provider {
 			return false;
 		}
 
+		// disable cache headers
+		nocache_headers();
+
 		// smash generated image
 		// currently it is not clear how to do it to achive the best results,
 		// probably we could use Kraken.io or something similar, the perfect
